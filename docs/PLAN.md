@@ -3,6 +3,16 @@
 > 이 계획은 `docs/PRD.md`를 기반으로 MVC 스켈레톤 코드를 단계별로 구현한다.  
 > 각 단계는 독립적으로 검증 가능하도록 구성한다.
 
+## 참조 레포
+
+| 레포 | 이 계획에서의 역할 |
+|------|------------------|
+| [DataPersistence](https://github.com/yeonho7/DataPersistence-yeonho-jeong-18013871) | Step 2 Model 설계의 참조 아키텍처. `OrderStatus`를 Enum으로 유지하는 이유: 타입 안전성. `order_no` 필드명은 DataPersistence의 `order_id`와 다름. |
+| [DummyDataGenerator](https://github.com/yeonho7/DummyDataGenerator-yeonho-jeong-18013871) | 통합 검증 시나리오에 사용할 더미 데이터 생성 도구 (12종 시료 / 36건 주문 / 생산작업 포함) |
+| [DataMonitor](https://github.com/yeonho7/DataMonitor-yeonho.jeong-18013871) | Step 4 MonitoringController 및 Step 5 MonitoringView의 참조 구현 |
+
+---
+
 ---
 
 ## 구현 순서
@@ -46,6 +56,8 @@ ConsoleMVC/
 ## Step 2 — Models 구현
 
 **목표**: 데이터 구조 정의. 비즈니스 로직 없음.
+
+> **DataPersistence 참조**: DataPersistence의 model(Sample·Order·ProductionJob)과 동일한 도메인. 단, 여기서는 `Order.status`를 `str` 대신 `OrderStatus` Enum으로, 주문 식별자를 `order_id` 대신 `order_no`로 정의한다.
 
 ### `src/models/order.py`
 ```python

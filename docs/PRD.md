@@ -15,6 +15,8 @@
 
 이 PoC는 전체 시스템 개발 전, MVC 계층 분리가 실제로 동작하는지 검증하기 위한 스켈레톤 구현이다.
 
+이 시스템은 DataPersistence(JSON 영속성), DummyDataGenerator(더미 데이터 생성), DataMonitor(조회 전용 모니터링) PoC와 같은 도메인을 공유하는 시리즈의 일환이다. ConsoleMVC는 그 중 전체 주문 워크플로우의 MVC 계층 분리를 검증한다.
+
 ---
 
 ## 3. 역할
@@ -286,7 +288,8 @@ main.py
 | M/V/C 계층 분리 | ✅ | |
 | 6개 메뉴 전체 골격 | ✅ | |
 | 핵심 비즈니스 로직 (approve, 생산량 계산) | ✅ | |
-| 데이터 영속성 | | ✅ (별도 PoC) |
+| 데이터 영속성 | | ✅ (DataPersistence PoC 담당 — model/repository 참조 가능) |
+| 더미 데이터 생성 | | ✅ (DummyDataGenerator PoC 담당) |
 | 실시간 생산 시뮬레이션 | | ✅ |
 | 입력 유효성 검사 (엣지 케이스) | | ✅ |
 | 테스트 코드 | | ✅ (미션2) |

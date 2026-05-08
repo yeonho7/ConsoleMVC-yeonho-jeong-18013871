@@ -83,3 +83,23 @@ store.current_job       # ProductionJob | None
 - 실시간 생산 시뮬레이션
 - 엣지 케이스 입력 유효성 검사
 - 테스트 코드 (미션2에서 작성)
+
+## POC 에코시스템
+
+ConsoleMVC는 반도체 시료 생산주문관리 시스템 아키텍처 검증 POC 시리즈 중 하나다.
+
+| 레포 | 목적 |
+|------|------|
+| DataPersistence | JSON write-through 영속성 — model(Sample·Order·ProductionJob) + repository(JSON CRUD) 계층 제공 |
+| DummyDataGenerator | 더미 데이터 생성 CLI — DataPersistence 서브모듈로 의존, 12종 시료·36건 주문·생산작업 생성 |
+| DataMonitor | 조회 전용 모니터링 콘솔 — DataPersistence·DummyDataGenerator 서브모듈로 의존 |
+| ConsoleMVC (이 레포) | MVC 계층 분리 + 전체 주문 워크플로우 검증 — InMemory 저장소 |
+
+DataPersistence와의 주요 차이:
+
+| 항목 | ConsoleMVC | DataPersistence |
+|------|-----------|----------------|
+| Order 상태 타입 | `OrderStatus` Enum | `str` ("RESERVED" 등) |
+| 주문 식별자 필드명 | `order_no` | `order_id` |
+| 저장소 | `InMemoryStore` | `SampleRepository` / `OrderRepository` (JSON) |
+| 영속성 | 없음 (재시작 시 초기화) | JSON write-through |
