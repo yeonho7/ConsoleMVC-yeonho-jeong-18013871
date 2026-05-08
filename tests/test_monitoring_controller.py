@@ -3,6 +3,7 @@ from src.store import InMemoryStore
 from src.controllers.monitoring_controller import MonitoringController
 from src.controllers.sample_controller import SampleController
 from src.controllers.order_controller import OrderController
+from src.controllers.production_controller import ProductionController
 from src.models.order import OrderStatus
 
 
@@ -19,7 +20,8 @@ def ctrl(store):
 @pytest.fixture
 def setup(store):
     sc = SampleController(store)
-    oc = OrderController(store)
+    pc = ProductionController(store)
+    oc = OrderController(store, pc)
     s1 = sc.register("S-001", "GaAs Wafer", 30.0, 0.9)
     s1.stock = 20
     s2 = sc.register("S-002", "InP Wafer", 45.0, 0.8)

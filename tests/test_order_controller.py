@@ -2,9 +2,9 @@ import math
 import pytest
 from src.store import InMemoryStore
 from src.controllers.order_controller import OrderController
+from src.controllers.production_controller import ProductionController
 from src.controllers.sample_controller import SampleController
 from src.models.order import OrderStatus
-from src.models.production_job import ProductionJob
 
 
 @pytest.fixture
@@ -18,8 +18,13 @@ def sample_ctrl(store):
 
 
 @pytest.fixture
-def ctrl(store):
-    return OrderController(store)
+def production_ctrl(store):
+    return ProductionController(store)
+
+
+@pytest.fixture
+def ctrl(store, production_ctrl):
+    return OrderController(store, production_ctrl)
 
 
 @pytest.fixture
@@ -62,9 +67,10 @@ class TestOrderControllerApproveWithSufficientStock:
         result = ctrl.approve(order.order_no)
         assert result.status == OrderStatus.CONFIRMED
 
-    def test_approve_does_not_enqueue_job_when_stock_sufficient(self, ctrl, store, sample_with_stock):
+    def test_approve_does_not_create_job_when_stock_sufficient(self, ctrl, store, sample_with_stock):
         order = ctrl.reserve("S-001", "Lab A", 5)
         ctrl.approve(order.order_no)
+        assert store.current_job is None
         assert len(store.production_queue) == 0
 
 
@@ -74,40 +80,11 @@ class TestOrderControllerApproveWithInsufficientStock:
         result = ctrl.approve(order.order_no)
         assert result.status == OrderStatus.PRODUCING
 
-    def test_approve_enqueues_production_job_when_stock_insufficient(self, ctrl, store, sample_no_stock):
+    def test_approve_creates_job_as_current_when_stock_insufficient(self, ctrl, store, sample_no_stock):
         order = ctrl.reserve("S-002", "Lab B", 10)
         ctrl.approve(order.order_no)
-        assert len(store.production_queue) == 1
-
-    def test_approve_calculates_shortage_correctly(self, ctrl, store, sample_no_stock):
-        # stock=0, quantity=10 → shortage=10
-        order = ctrl.reserve("S-002", "Lab B", 10)
-        ctrl.approve(order.order_no)
-        job = store.production_queue[0]
-        assert job.shortage == 10
-
-    def test_approve_calculates_actual_qty_with_formula(self, ctrl, store, sample_no_stock):
-        # yield_rate=0.8, shortage=10 → ceil(10 / (0.8 * 0.9)) = ceil(13.888...) = 14
-        order = ctrl.reserve("S-002", "Lab B", 10)
-        ctrl.approve(order.order_no)
-        job = store.production_queue[0]
-        expected = math.ceil(10 / (0.8 * 0.9))
-        assert job.actual_qty == expected
-
-    def test_approve_calculates_total_time_correctly(self, ctrl, store, sample_no_stock):
-        # avg_production_time=45.0, actual_qty=14 → 45.0 * 14 = 630.0
-        order = ctrl.reserve("S-002", "Lab B", 10)
-        ctrl.approve(order.order_no)
-        job = store.production_queue[0]
-        expected_qty = math.ceil(10 / (0.8 * 0.9))
-        assert job.total_time == 45.0 * expected_qty
-
-    def test_approve_production_job_linked_to_order(self, ctrl, store, sample_no_stock):
-        order = ctrl.reserve("S-002", "Lab B", 10)
-        ctrl.approve(order.order_no)
-        job = store.production_queue[0]
-        assert job.order_no == order.order_no
-        assert job.sample_id == "S-002"
+        assert store.current_job is not None
+        assert store.current_job.order_no == order.order_no
 
 
 class TestOrderControllerReject:

@@ -1,14 +1,13 @@
-import math
 from datetime import datetime
 
 from src.models.order import Order, OrderStatus
-from src.models.production_job import ProductionJob
 from src.store import InMemoryStore
 
 
 class OrderController:
-    def __init__(self, store: InMemoryStore):
+    def __init__(self, store: InMemoryStore, production_ctrl):
         self._store = store
+        self._production_ctrl = production_ctrl
 
     def reserve(self, sample_id: str, customer: str, quantity: int) -> Order:
         order_no = self._store.next_order_no()
@@ -23,17 +22,7 @@ class OrderController:
         if sample.stock >= order.quantity:
             order.status = OrderStatus.CONFIRMED
         else:
-            shortage = order.quantity - sample.stock
-            actual_qty = math.ceil(shortage / (sample.yield_rate * 0.9))
-            total_time = sample.avg_production_time * actual_qty
-            job = ProductionJob(
-                order_no=order_no,
-                sample_id=order.sample_id,
-                shortage=shortage,
-                actual_qty=actual_qty,
-                total_time=total_time,
-            )
-            self._store.production_queue.append(job)
+            self._production_ctrl.enqueue(order_no)
             order.status = OrderStatus.PRODUCING
 
         return order

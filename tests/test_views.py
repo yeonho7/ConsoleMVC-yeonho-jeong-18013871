@@ -66,6 +66,11 @@ class TestSampleView:
         out = capsys.readouterr().out
         assert len(out) > 0
 
+    def test_input_search_keyword_returns_user_input(self):
+        view = SampleView()
+        with patch("builtins.input", return_value="GaAs"):
+            assert view.input_search_keyword() == "GaAs"
+
 
 class TestOrderView:
     def test_show_reserved_list_prints_without_error(self, capsys):
@@ -104,6 +109,18 @@ class TestOrderView:
             result = view.get_order_choice(orders)
         assert result == "1"
 
+    def test_get_approve_or_reject_returns_user_input(self):
+        view = OrderView()
+        with patch("builtins.input", return_value="1"):
+            assert view.get_approve_or_reject() == "1"
+
+    def test_show_release_result_prints_order_no(self, capsys):
+        view = OrderView()
+        order = Order("ORD-20260508-0001", "S-001", "Lab A", 5, status=OrderStatus.RELEASED)
+        view.show_release_result(order)
+        out = capsys.readouterr().out
+        assert "ORD-20260508-0001" in out
+
 
 class TestProductionView:
     def test_show_current_prints_without_error_when_none(self, capsys):
@@ -125,6 +142,16 @@ class TestProductionView:
         view.show_queue(jobs)
         out = capsys.readouterr().out
         assert len(out) > 0
+
+    def test_ask_complete_current_returns_true_on_y(self):
+        view = ProductionView()
+        with patch("builtins.input", return_value="y"):
+            assert view.ask_complete_current() is True
+
+    def test_ask_complete_current_returns_false_on_n(self):
+        view = ProductionView()
+        with patch("builtins.input", return_value="n"):
+            assert view.ask_complete_current() is False
 
 
 class TestMonitoringView:

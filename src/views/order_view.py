@@ -31,3 +31,9 @@ class OrderView:
 
     def get_order_choice(self, orders: list[Order]) -> str:
         return input("선택할 번호 > ").strip()
+
+    def get_approve_or_reject(self) -> str:
+        return input("승인(1) / 거절(2) > ").strip()
+
+    def show_release_result(self, order):
+        print(f"출고 처리 완료: {order.order_no}")

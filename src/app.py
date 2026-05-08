@@ -14,8 +14,8 @@ class App:
     def __init__(self, store: InMemoryStore):
         self._store = store
         self._sample_ctrl = SampleController(store)
-        self._order_ctrl = OrderController(store)
         self._production_ctrl = ProductionController(store)
+        self._order_ctrl = OrderController(store, self._production_ctrl)
         self._monitoring_ctrl = MonitoringController(store)
 
         self._main_view = MainView()
@@ -69,7 +69,7 @@ class App:
             elif choice == "2":
                 self._sample_view.show_list(self._sample_ctrl.list_all())
             elif choice == "3":
-                keyword = input("검색어 > ").strip()
+                keyword = self._sample_view.input_search_keyword()
                 self._sample_view.show_search_result(self._sample_ctrl.search(keyword))
 
     def _handle_order_reserve(self):
@@ -88,7 +88,7 @@ class App:
             order = orders[idx]
         except (ValueError, IndexError):
             return
-        action = input("승인(1) / 거절(2) > ").strip()
+        action = self._order_view.get_approve_or_reject()
         if action == "1":
             self._order_ctrl.approve(order.order_no)
         elif action == "2":
@@ -110,8 +110,7 @@ class App:
         self._production_view.show_current(self._production_ctrl.get_current())
         self._production_view.show_queue(self._production_ctrl.get_queue())
         if self._store.current_job:
-            action = input("현재 작업 완료 처리? (y/n) > ").strip()
-            if action == "y":
+            if self._production_view.ask_complete_current():
                 self._production_ctrl.complete_current()
 
     def _handle_release(self):
@@ -126,4 +125,4 @@ class App:
         except (ValueError, IndexError):
             return
         self._order_ctrl.release(order.order_no)
-        print(f"출고 처리 완료: {order.order_no}")
+        self._order_view.show_release_result(order)

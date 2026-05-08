@@ -29,6 +29,9 @@ class SampleView:
             "yield_rate": yield_rate,
         }
 
+    def input_search_keyword(self) -> str:
+        return input("검색어 > ").strip()
+
     def show_submenu(self) -> str:
         print("[1] 시료 등록  [2] 목록 조회  [3] 이름 검색  [0] 돌아가기")
         return input("선택 > ").strip()

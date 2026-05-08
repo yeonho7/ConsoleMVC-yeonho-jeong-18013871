@@ -17,3 +17,6 @@ class ProductionView:
             return
         for i, job in enumerate(jobs, 1):
             print(f"  {i}. {job.order_no}  시료: {job.sample_id}  실 생산량: {job.actual_qty}ea")
+
+    def ask_complete_current(self) -> bool:
+        return input("현재 작업 완료 처리? (y/n) > ").strip() == "y"
