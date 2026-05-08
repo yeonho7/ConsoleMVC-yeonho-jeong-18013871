@@ -53,6 +53,11 @@ class TestSampleView:
         out = capsys.readouterr().out
         assert "Alpha" in out
 
+    def test_show_search_result_empty_prints_message(self, capsys):
+        self.view.show_search_result([])
+        out = capsys.readouterr().out
+        assert "없습니다" in out
+
     def test_input_sample_returns_dict_with_required_keys(self):
         with patch("builtins.input", side_effect=["S001", "Alpha", "30.0", "0.85"]):
             data = self.view.input_sample()
@@ -86,10 +91,20 @@ class TestOrderView:
         out = capsys.readouterr().out
         assert "ACME" in out
 
+    def test_show_reserved_list_empty_prints_message(self, capsys):
+        self.view.show_reserved_list([])
+        out = capsys.readouterr().out
+        assert "없습니다" in out
+
     def test_show_confirmed_list_prints_orders(self, capsys):
         self.view.show_confirmed_list(self.orders)
         out = capsys.readouterr().out
         assert out != ""
+
+    def test_show_confirmed_list_empty_prints_message(self, capsys):
+        self.view.show_confirmed_list([])
+        out = capsys.readouterr().out
+        assert "없습니다" in out
 
     def test_input_order_returns_dict_with_required_keys(self):
         with patch("builtins.input", side_effect=["S001", "ACME", "50"]):
@@ -158,6 +173,11 @@ class TestMonitoringView:
         self.view.show_inventory(inventory)
         out = capsys.readouterr().out
         assert "Alpha" in out
+
+    def test_show_inventory_empty_prints_message(self, capsys):
+        self.view.show_inventory([])
+        out = capsys.readouterr().out
+        assert "없습니다" in out
 
     def test_show_submenu_returns_choice(self):
         with patch("builtins.input", return_value="1"):
